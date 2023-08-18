@@ -1,26 +1,11 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# ### Proposed Model
-
-# In[1]:
-
-
 import tensorflow as tf
 tf.keras.utils.set_random_seed(42)
 tf.config.experimental.enable_op_determinism()
-
-
-# In[2]:
-
 
 import numpy as np
 import random
 import os
 os.environ['PYTHONHASHSEED']=str(42)
-
-
-# In[3]:
 
 
 from keras.models import Model
@@ -29,10 +14,6 @@ from keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D, concatenate,
 from keras.layers import Activation, MaxPool2D, Concatenate, add , multiply, Reshape, Dense, Permute, GlobalMaxPooling2D, Add, Conv1D
 from keras import backend as K
 from tensorflow.keras import models, layers, regularizers
-
-
-# In[4]:
-
 
 def dice_coef(y_true, y_pred, smooth=100):
         y_true = tf.cast(y_true, tf.float32)
@@ -44,15 +25,8 @@ def dice_coef(y_true, y_pred, smooth=100):
         dice = (2. * intersection + smooth) / (K.sum(y_true_f) + K.sum(y_pred_f) + smooth)
         return dice
 
-
-# In[5]:
-
-
 def dice_coef_loss(y_true, y_pred):
         return -dice_coef(y_true, y_pred)
-
-
-# In[6]:
 
 
 def iou(y_true, y_pred):
@@ -67,10 +41,6 @@ def iou(y_true, y_pred):
             return x
         
         return tf.numpy_function(f, [y_true, y_pred], tf.float32)
-
-
-# In[7]:
-
 
 def MultiResBlock(input, num_filters):
     W = num_filters
@@ -97,10 +67,6 @@ def MultiResBlock(input, num_filters):
     out = Activation('relu')(out)
     out = BatchNormalization(axis=3)(out)
     return out
-
-
-# In[8]:
-
 
 def ResPath(filters, length, inp):
     shortcut = inp
@@ -130,10 +96,6 @@ def ResPath(filters, length, inp):
         out = BatchNormalization(axis=3)(out)
 
     return out
-
-
-# In[9]:
-
 
 def channel_attention(input_feature, ratio=4):
     channel_axis = 1 if K.image_data_format() == "channels_first" else -1
@@ -172,10 +134,6 @@ def channel_attention(input_feature, ratio=4):
         cbam_feature = Permute((3, 1, 2))(cbam_feature)
 
     return multiply([input_feature, cbam_feature])
-
-
-# In[10]:
-
 
 def custom_unetv20(IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS):
     inputs = Input((IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS))
